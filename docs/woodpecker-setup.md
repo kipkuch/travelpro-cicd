@@ -4,7 +4,7 @@ Woodpecker CI is a lightweight CI/CD engine that integrates natively with Forgej
 
 ## Prerequisites
 
-- Forgejo running and accessible at `http://192.168.1.77:3000` (see [Forgejo Setup](forgejo-setup.md))
+- Forgejo running and accessible at `http://<SERVER_IP>:3000` (see [Forgejo Setup](forgejo-setup.md))
 - Docker and Docker Compose on the test server
 
 ## Architecture
@@ -30,14 +30,14 @@ Woodpecker CI is a lightweight CI/CD engine that integrates natively with Forgej
 
 Woodpecker authenticates with Forgejo via OAuth2.
 
-1. Log into Forgejo at **http://192.168.1.77:3000**
+1. Log into Forgejo at **http://<SERVER_IP>:3000**
 2. Go to **Site Administration → Applications** (or **User Settings → Applications** if not admin)
 3. Click **Create a new OAuth2 Application**
 
 | Field | Value |
 |-------|-------|
 | Application Name | Woodpecker CI |
-| Redirect URI | http://192.168.1.77:8000/authorize |
+| Redirect URI | http://<SERVER_IP>:8000/authorize |
 
 4. Click **Create Application**
 5. Copy the **Client ID** and **Client Secret** — you'll need these next
@@ -81,7 +81,7 @@ You should see: `forgejo`, `woodpecker-server`, `woodpecker-agent`, `docker-regi
 
 ## Step 4: Log into Woodpecker
 
-1. Open **http://192.168.1.77:8000**
+1. Open **http://<SERVER_IP>:8000**
 2. Click **Login** — you'll be redirected to Forgejo to authorise
 3. Approve the OAuth2 request
 4. You're now logged into Woodpecker
@@ -94,11 +94,11 @@ You should see: `forgejo`, `woodpecker-server`, `woodpecker-agent`, `docker-regi
 
 ### Fix the Webhook URL
 
-The auto-created webhook uses the external IP (`192.168.1.77`), but Forgejo runs inside Docker and needs to reach Woodpecker via the Docker service name.
+The auto-created webhook uses the external IP (`<SERVER_IP>`), but Forgejo runs inside Docker and needs to reach Woodpecker via the Docker service name.
 
 1. Go to Forgejo → repo → **Settings → Webhooks**
 2. Click the pencil icon on the Woodpecker webhook
-3. Change the Target URL from `http://192.168.1.77:8000/api/hook?...` to `http://woodpecker-server:8000/api/hook?...`
+3. Change the Target URL from `http://<SERVER_IP>:8000/api/hook?...` to `http://woodpecker-server:8000/api/hook?...`
 4. Save and click **Test Delivery** to confirm it works
 
 ### Enable Webhook Delivery to Private Hosts
@@ -117,7 +117,7 @@ Add:
 
 ```json
 {
-  "insecure-registries": ["192.168.1.77:5000"]
+  "insecure-registries": ["<SERVER_IP>:5000"]
 }
 ```
 
@@ -151,8 +151,8 @@ steps:
   - name: build-image
     image: plugins/docker
     settings:
-      repo: 192.168.1.77:5000/travelpro/catalog-api
-      registry: 192.168.1.77:5000
+      repo: <SERVER_IP>:5000/travelpro/catalog-api
+      registry: <SERVER_IP>:5000
       insecure: true
       tags:
         - latest
@@ -161,12 +161,12 @@ steps:
   - name: deploy
     image: appleboy/drone-ssh
     settings:
-      host: 192.168.1.77
-      username: deployguy
+      host: <SERVER_IP>
+      username: <DEPLOY_USER>
       key:
         from_secret: deploy_ssh_key
       script:
-        - cd /home/deployguy/travelpro_catalog
+        - cd /home/<DEPLOY_USER>/travelpro_catalog
         - docker compose pull catalog-api
         - docker compose up -d catalog-api
 ```
@@ -195,7 +195,7 @@ The deploy step needs SSH access to the server. In Woodpecker:
 | Value | Contents of the private SSH key (see below) |
 | Events | ☑ Push |
 
-The private key must correspond to a public key in `deployguy`'s `~/.ssh/authorized_keys` on the server. To get the key contents:
+The private key must correspond to a public key in `<DEPLOY_USER>`'s `~/.ssh/authorized_keys` on the server. To get the key contents:
 
 ```bash
 # On the machine where the key lives (e.g. your local machine)
@@ -211,7 +211,7 @@ Once the pipeline is pushing images, update `travelpro_catalog/docker-compose.ym
 ```yaml
   catalog-api:
     container_name: catalog-api
-    image: 192.168.1.77:5000/travelpro/catalog-api:latest  # <-- replaces "build: ."
+    image: <SERVER_IP>:5000/travelpro/catalog-api:latest  # <-- replaces "build: ."
     restart: unless-stopped
     ...
 ```
@@ -227,7 +227,7 @@ git commit -m "Add CI/CD pipeline"
 git push forgejo main
 ```
 
-Watch the pipeline run at **http://192.168.1.77:8000**. All four stages should pass: clone → test → build-image → deploy.
+Watch the pipeline run at **http://<SERVER_IP>:8000**. All four stages should pass: clone → test → build-image → deploy.
 
 ## Useful Commands
 
@@ -236,10 +236,10 @@ Watch the pipeline run at **http://192.168.1.77:8000**. All four stages should p
 docker compose logs -f woodpecker-server woodpecker-agent
 
 # List images in the registry
-curl http://192.168.1.77:5000/v2/_catalog
+curl http://<SERVER_IP>:5000/v2/_catalog
 
 # List tags for an image
-curl http://192.168.1.77:5000/v2/travelpro/catalog-api/tags/list
+curl http://<SERVER_IP>:5000/v2/travelpro/catalog-api/tags/list
 
 # Restart all CI/CD services
 docker compose restart
@@ -255,5 +255,5 @@ docker compose restart
 | Webhook delivery fails (red dot) | Change webhook URL to use `woodpecker-server:8000` instead of the external IP |
 | Webhook blocked by Forgejo | Add `FORGEJO__webhook__ALLOWED_HOST_LIST: "*"` to Forgejo environment |
 | `secret not found` | Add the secret in Woodpecker UI → repo → Settings → Secrets |
-| Pipeline fails at deploy | Verify the `deploy_ssh_key` secret is set and the public key is in `deployguy`'s `authorized_keys` |
+| Pipeline fails at deploy | Verify the `deploy_ssh_key` secret is set and the public key is in `<DEPLOY_USER>`'s `authorized_keys` |
 | Agent not picking up jobs | Check `WOODPECKER_AGENT_SECRET` matches between server and agent |

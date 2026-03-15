@@ -1,6 +1,6 @@
 # TravelPro CI/CD Infrastructure
 
-This project contains the Docker Compose configuration and setup guides for the Abeona platform's CI/CD infrastructure running on the test server (`192.168.1.77`).
+This project contains the Docker Compose configuration and setup guides for the Abeona platform's CI/CD infrastructure running on the test server (`<SERVER_IP>`).
 
 ## Components
 

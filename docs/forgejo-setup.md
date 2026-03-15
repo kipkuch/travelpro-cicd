@@ -4,13 +4,13 @@ Forgejo is a lightweight, self-hosted Git platform (fork of Gitea). It runs as a
 
 ## Prerequisites
 
-- Docker and Docker Compose installed on `192.168.1.77`
+- Docker and Docker Compose installed on `<SERVER_IP>`
 - Port 3000 (web) and 2222 (SSH) available
 
 ## Step 1: Start Forgejo
 
 ```bash
-ssh deployguy@192.168.1.77
+ssh <DEPLOY_USER>@<SERVER_IP>
 
 # Copy this project to the server
 mkdir -p ~/travelpro-cicd && cd ~/travelpro-cicd
@@ -24,7 +24,7 @@ docker compose up -d forgejo
 
 ## Step 2: Initial Configuration
 
-Open **http://192.168.1.77:3000** in your browser. You'll see the installation wizard.
+Open **http://<SERVER_IP>:3000** in your browser. You'll see the installation wizard.
 
 ### Database Settings
 
@@ -38,9 +38,9 @@ Open **http://192.168.1.77:3000** in your browser. You'll see the installation w
 |---------|-------|
 | Site Title | Abeona Platform |
 | Repository Root Path | (leave default) |
-| SSH Server Domain | 192.168.1.77 |
+| SSH Server Domain | <SERVER_IP> |
 | SSH Server Port | 2222 |
-| Forgejo Base URL | http://192.168.1.77:3000/ |
+| Forgejo Base URL | http://<SERVER_IP>:3000/ |
 
 ### Admin Account
 
@@ -70,7 +70,7 @@ From your **Windows machine**:
 cd C:\Users\Admin\Documents\repo\travelpro_catalog
 
 # Add Forgejo as a remote
-git remote add forgejo ssh://git@192.168.1.77:2222/<your-username>/travelpro_catalog.git
+git remote add forgejo ssh://git@<SERVER_IP>:2222/<your-username>/travelpro_catalog.git
 
 # Push all branches
 git push forgejo --all
@@ -79,13 +79,13 @@ git push forgejo --all
 Or using HTTP:
 
 ```bash
-git remote add forgejo http://192.168.1.77:3000/<your-username>/travelpro_catalog.git
+git remote add forgejo http://<SERVER_IP>:3000/<your-username>/travelpro_catalog.git
 git push forgejo --all
 ```
 
 ## Step 6: Verify
 
-Browse to **http://192.168.1.77:3000/\<your-username\>/travelpro_catalog** — you should see your code, commits, and branches.
+Browse to **http://<SERVER_IP>:3000/\<your-username\>/travelpro_catalog** — you should see your code, commits, and branches.
 
 ## Useful Commands
 
