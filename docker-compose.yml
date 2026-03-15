@@ -1,0 +1,66 @@
+services:
+  forgejo:
+    container_name: forgejo
+    image: codeberg.org/forgejo/forgejo:11
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      USER_UID: 1000
+      USER_GID: 1000
+      FORGEJO__webhook__ALLOWED_HOST_LIST: "*"
+    volumes:
+      - forgejo-data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
+      - "2222:22"
+
+  woodpecker-server:
+    container_name: woodpecker-server
+    image: woodpeckerci/woodpecker-server:latest
+    restart: unless-stopped
+    depends_on:
+      - forgejo
+    environment:
+      WOODPECKER_HOST: http://192.168.1.77:8000
+      WOODPECKER_OPEN: "true"
+      WOODPECKER_FORGEJO: "true"
+      WOODPECKER_FORGEJO_URL: http://192.168.1.77:3000
+      WOODPECKER_FORGEJO_SKIP_VERIFY: "true"
+      WOODPECKER_FORGEJO_CLIENT: ${WOODPECKER_FORGEJO_CLIENT}
+      WOODPECKER_FORGEJO_SECRET: ${WOODPECKER_FORGEJO_SECRET}
+      WOODPECKER_AGENT_SECRET: ${WOODPECKER_AGENT_SECRET}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - woodpecker-data:/var/lib/woodpecker
+    ports:
+      - "8000:8000"
+
+  woodpecker-agent:
+    container_name: woodpecker-agent
+    image: woodpeckerci/woodpecker-agent:latest
+    restart: unless-stopped
+    depends_on:
+      - woodpecker-server
+    environment:
+      WOODPECKER_SERVER: woodpecker-server:9000
+      WOODPECKER_AGENT_SECRET: ${WOODPECKER_AGENT_SECRET}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  registry:
+    container_name: docker-registry
+    image: registry:2
+    restart: unless-stopped
+    volumes:
+      - registry-data:/var/lib/registry
+    ports:
+      - "5000:5000"
+
+volumes:
+  forgejo-data:
+  woodpecker-data:
+  registry-data:
