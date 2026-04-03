@@ -298,6 +298,8 @@ server {
     listen 80;
     server_name <DOMAIN>;
 
+    client_max_body_size 20M;
+
     # Serve static images
     location /images/ {
         alias /home/deployguy/tourpro_catalog/images/;
@@ -457,7 +459,9 @@ Certbot will:
 
 ### After Certbot runs
 
-Certbot modifies the Nginx config automatically. Verify it looks correct:
+Certbot modifies the Nginx config automatically. It creates a new `listen 443 ssl` server block. **Add `client_max_body_size 20M;` to the new 443 block as well** (Certbot doesn't copy it over).
+
+Verify it looks correct:
 
 ```bash
 sudo nginx -t && sudo systemctl reload nginx
