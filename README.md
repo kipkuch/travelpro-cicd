@@ -1,4 +1,4 @@
-# TravelPro CI/CD Infrastructure
+# TourPro CI/CD Infrastructure
 
 This project contains the Docker Compose configuration and setup guides for the Abeona platform's CI/CD infrastructure running on the test server (`<SERVER_IP>`).
 
@@ -13,8 +13,9 @@ This project contains the Docker Compose configuration and setup guides for the 
 
 ## Setup Guides
 
-1. [Forgejo Setup](docs/forgejo-setup.md) — do this first
-2. [Woodpecker CI Setup](docs/woodpecker-setup.md) — requires Forgejo to be running
+1. [CI/CD Setup](docs/cicd-setup.md) — Forgejo, Woodpecker CI, and promote pipeline
+2. [Deployment Model](docs/deployment-model.md) — application surfaces and routing
+3. [Netcup VPS Deployment](docs/netcup-deployment-plan.md) — production server setup
 
 ## Quick Start
 
@@ -35,9 +36,10 @@ docker compose logs -f
 ## Project Layout
 
 ```
-docker-compose.yml      # All infrastructure services
-.env.example            # Template for secrets
+docker-compose.yml          # All infrastructure services
+.env.example                # Template for secrets
 docs/
-  forgejo-setup.md      # Forgejo installation and config guide
-  woodpecker-setup.md   # Woodpecker CI setup and pipeline guide
+  cicd-setup.md             # Forgejo, Woodpecker CI, and promote pipeline guide
+  deployment-model.md       # Application surfaces and routing
+  netcup-deployment-plan.md # Production VPS setup and deployment
 ```

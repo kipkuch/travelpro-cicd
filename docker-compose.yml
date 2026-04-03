@@ -19,7 +19,7 @@ services:
 
   woodpecker-server:
     container_name: woodpecker-server
-    image: woodpeckerci/woodpecker-server:latest
+    image: woodpeckerci/woodpecker-server:v3
     restart: unless-stopped
     depends_on:
       - forgejo
@@ -32,6 +32,8 @@ services:
       WOODPECKER_FORGEJO_CLIENT: ${WOODPECKER_FORGEJO_CLIENT}
       WOODPECKER_FORGEJO_SECRET: ${WOODPECKER_FORGEJO_SECRET}
       WOODPECKER_AGENT_SECRET: ${WOODPECKER_AGENT_SECRET}
+      WOODPECKER_ADMIN: ${WOODPECKER_ADMIN}
+      WOODPECKER_PLUGINS_PRIVILEGED: "plugins/docker,woodpeckerci/plugin-docker-buildx"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -41,7 +43,7 @@ services:
 
   woodpecker-agent:
     container_name: woodpecker-agent
-    image: woodpeckerci/woodpecker-agent:latest
+    image: woodpeckerci/woodpecker-agent:v3
     restart: unless-stopped
     depends_on:
       - woodpecker-server
